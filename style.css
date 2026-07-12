@@ -1130,4 +1130,4 @@ p { color: var(--muted); line-height: 1.75; }
 .progress-text{margin-top:8px;display:flex;justify-content:space-between;color:#666;font-weight:600}
 
 
-.voice-wave span{transition:height .045s linear,opacity .07s linear;will-change:height,opacity}
+.voice-wave span{transition:none;will-change:height,opacity;transform:translateZ(0)}

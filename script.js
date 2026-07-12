@@ -157,6 +157,11 @@ let noiseFloor = 0.012;
 let adaptivePeak = 0.08;
 let silenceHoldFrames = 0;
 
+// ค่าการเคลื่อนไหวแบบนุ่มนวลของแต่ละแท่ง
+let smoothBarHeights = [];
+let smoothBarOpacity = [];
+let lastFrameTime = performance.now();
+
 function fmt(time) {
   if (!Number.isFinite(time)) return '00:00';
   const minutes = Math.floor(time / 60);
@@ -177,8 +182,14 @@ function setWaveIdle(button) {
   const bars = getWaveBars(button);
   const idle = [5, 7, 9, 6, 8, 5, 10, 7];
 
+  smoothBarHeights = new Array(bars.length);
+  smoothBarOpacity = new Array(bars.length);
+
   bars.forEach((bar, index) => {
-    bar.style.height = `${idle[index % idle.length]}px`;
+    const height = idle[index % idle.length];
+    smoothBarHeights[index] = height;
+    smoothBarOpacity[index] = 0.28;
+    bar.style.height = `${height}px`;
     bar.style.opacity = '.28';
   });
 }
@@ -263,6 +274,13 @@ function updateAdaptiveThreshold(rms) {
   adaptivePeak = Math.max(noiseFloor + 0.025, adaptivePeak);
 }
 
+
+function smoothTowards(current, target, speed, deltaSeconds) {
+  // frame-rate independent easing
+  const amount = 1 - Math.exp(-speed * deltaSeconds);
+  return current + (target - current) * amount;
+}
+
 function updateWaveFromAudio() {
   if (
     !activeVoiceButton ||
@@ -281,13 +299,15 @@ function updateWaveFromAudio() {
     return;
   }
 
+  const now = performance.now();
+  const deltaSeconds = Math.min(0.05, Math.max(0.001, (now - lastFrameTime) / 1000));
+  lastFrameTime = now;
+
   analyser.getByteFrequencyData(frequencyData);
 
   const rms = calculateRms();
   updateAdaptiveThreshold(rms);
 
-  // ย่านที่สำคัญต่อเสียงพูด
-  const subBass = averageFrequencyRange(60, 160);
   const lowVoice = averageFrequencyRange(160, 350);
   const bodyVoice = averageFrequencyRange(350, 900);
   const clarityVoice = averageFrequencyRange(900, 2500);
@@ -311,7 +331,6 @@ function updateWaveFromAudio() {
     Math.min(1, (rms - dynamicThreshold) / (adaptivePeak - dynamicThreshold))
   );
 
-  // ต้องมีทั้งระดับเสียงและพลังงานในย่านเสียงพูด
   const speechConfidence = Math.max(
     0,
     Math.min(
@@ -325,60 +344,85 @@ function updateWaveFromAudio() {
   const speaking = rms > dynamicThreshold && speechConfidence > 0.10;
 
   if (speaking) {
-    silenceHoldFrames = 4;
+    silenceHoldFrames = 6;
   } else if (silenceHoldFrames > 0) {
     silenceHoldFrames--;
   }
 
   const showMotion = speaking || silenceHoldFrames > 0;
 
-  bars.forEach((bar, index) => {
-    if (!showMotion) {
-      const quietHeight = 4 + (index % 3);
-      bar.style.height = `${quietHeight}px`;
-      bar.style.opacity = '.24';
-      return;
-    }
+  if (smoothBarHeights.length !== bars.length) {
+    smoothBarHeights = new Array(bars.length).fill(7);
+    smoothBarOpacity = new Array(bars.length).fill(0.28);
+  }
 
+  bars.forEach((bar, index) => {
     const position = index / Math.max(1, bars.length - 1);
 
-    // ให้แต่ละแท่งตอบสนองกับย่านเสียงต่างกัน
-    let bandLevel;
+    let targetHeight;
+    let targetOpacity;
 
-    if (position < 0.18) {
-      bandLevel = lowVoice * 0.75 + bodyVoice * 0.25;
-    } else if (position < 0.42) {
-      bandLevel = bodyVoice * 0.62 + clarityVoice * 0.38;
-    } else if (position < 0.70) {
-      bandLevel = clarityVoice * 0.72 + presenceVoice * 0.28;
+    if (!showMotion) {
+      targetHeight = 4.5 + (index % 3) * 0.65;
+      targetOpacity = 0.24;
     } else {
-      bandLevel = presenceVoice * 0.70 + clarityVoice * 0.30;
+      let bandLevel;
+
+      if (position < 0.18) {
+        bandLevel = lowVoice * 0.75 + bodyVoice * 0.25;
+      } else if (position < 0.42) {
+        bandLevel = bodyVoice * 0.62 + clarityVoice * 0.38;
+      } else if (position < 0.70) {
+        bandLevel = clarityVoice * 0.72 + presenceVoice * 0.28;
+      } else {
+        bandLevel = presenceVoice * 0.70 + clarityVoice * 0.30;
+      }
+
+      const centerBoost = 1 - Math.abs(position - 0.5) * 0.62;
+
+      // การแกว่งเบามากเพื่อให้ดูมีชีวิต แต่ไม่กระตุก
+      const softMotion =
+        0.96 +
+        Math.sin(now * 0.0045 + index * 0.72) * 0.025 +
+        Math.sin(now * 0.0028 + index * 0.31) * 0.018;
+
+      const finalLevel = Math.max(
+        0,
+        Math.min(
+          1,
+          (bandLevel * 0.68 + speechConfidence * 0.52) *
+          centerBoost *
+          softMotion
+        )
+      );
+
+      targetHeight = 5 + Math.pow(finalLevel, 0.82) * 34;
+      targetOpacity = Math.min(1, 0.40 + finalLevel * 0.64);
     }
 
-    // เพิ่มรูปทรงแบบสมมาตรตรงกลางเพื่อให้ดูเป็น waveform
-    const centerBoost = 1 - Math.abs(position - 0.5) * 0.75;
+    const currentHeight = smoothBarHeights[index] ?? 7;
+    const currentOpacity = smoothBarOpacity[index] ?? 0.28;
 
-    const microVariation =
-      0.88 +
-      Math.sin(performance.now() * 0.012 + index * 1.17) * 0.08 +
-      Math.sin(performance.now() * 0.021 + index * 0.63) * 0.04;
+    // ขึ้นไวกว่าเล็กน้อย แต่ลงช้ากว่า ทำให้คลื่นลื่นและไม่แข็ง
+    const heightSpeed = targetHeight > currentHeight ? 12 : 6.5;
+    const opacitySpeed = targetOpacity > currentOpacity ? 10 : 5.5;
 
-    const finalLevel = Math.max(
-      0,
-      Math.min(
-        1,
-        (bandLevel * 0.72 + speechConfidence * 0.56) *
-        centerBoost *
-        microVariation
-      )
+    smoothBarHeights[index] = smoothTowards(
+      currentHeight,
+      targetHeight,
+      heightSpeed,
+      deltaSeconds
     );
 
-    const minHeight = 5;
-    const maxHeight = 40;
-    const height = minHeight + Math.pow(finalLevel, 0.72) * (maxHeight - minHeight);
+    smoothBarOpacity[index] = smoothTowards(
+      currentOpacity,
+      targetOpacity,
+      opacitySpeed,
+      deltaSeconds
+    );
 
-    bar.style.height = `${height.toFixed(1)}px`;
-    bar.style.opacity = `${Math.min(1, 0.42 + finalLevel * 0.70)}`;
+    bar.style.height = `${smoothBarHeights[index].toFixed(2)}px`;
+    bar.style.opacity = smoothBarOpacity[index].toFixed(3);
   });
 
   animationFrameId = requestAnimationFrame(updateWaveFromAudio);
@@ -392,6 +436,7 @@ function startWave(button) {
   }
 
   setWaveIdle(button);
+  lastFrameTime = performance.now();
 
   if (ensureAudioAnalyser()) {
     animationFrameId = requestAnimationFrame(updateWaveFromAudio);
