@@ -445,25 +445,6 @@ p { color: var(--muted); line-height: 1.75; }
   }
 }
 
-/* Donate QR without large white box */
-.donate-qr-simple {
-  margin: 30px auto 0;
-  text-align: center;
-}
-.donate-qr-simple img {
-  width: min(280px, 82vw);
-  height: auto;
-  display: block;
-  margin: 0 auto 14px;
-  border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(123, 102, 190, 0.22);
-}
-.donate-qr-simple p {
-  margin: 0;
-  font-weight: 900;
-  color: #7a5b96;
-}
-
 /* ปรับสัดส่วนรูปหน้าแรกใหม่: ให้ภาพ 16:9 แสดงครบ ไม่โดนตัดหัว/ตัดตัวหนังสือ */
 .hero {
   min-height: calc(100vw * 9 / 16 + 78px);
@@ -754,3 +735,116 @@ p { color: var(--muted); line-height: 1.75; }
     right: 14px !important;
   }
 }
+
+/* Donation card */
+.donate-card {
+  width: min(960px, 100%);
+  margin: 38px auto 0;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 340px);
+  gap: 34px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 32px;
+  box-shadow: 0 26px 70px rgba(123, 102, 190, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.donate-info h3 {
+  margin: 14px 0 10px;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.2;
+}
+
+.donate-info p {
+  margin: 0 0 16px;
+}
+
+.donate-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #d54890;
+  background: rgba(255, 115, 181, 0.16);
+  font-weight: 900;
+}
+
+.donate-points {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.donate-points span {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  font-weight: 800;
+  color: #705382;
+}
+
+.donate-note {
+  font-size: 14px;
+  font-weight: 800;
+  color: #8d6aa0;
+}
+
+.donate-qr-box {
+  padding: 18px;
+  text-align: center;
+  border-radius: 26px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 235, 247, 0.96),
+    rgba(229, 244, 255, 0.96)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 40px rgba(123, 102, 190, 0.18);
+}
+
+.donate-qr-box img {
+  width: 100%;
+  max-width: 290px;
+  height: auto;
+  display: block;
+  margin: 0 auto 14px;
+  border-radius: 18px;
+}
+
+.donate-qr-box strong,
+.donate-qr-box span {
+  display: block;
+}
+
+.donate-qr-box strong {
+  margin-bottom: 5px;
+  font-size: 18px;
+  color: #5f3f78;
+}
+
+.donate-qr-box span {
+  font-size: 14px;
+  color: #8c6a9e;
+}
+
+@media (max-width: 760px) {
+  .donate-card {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .donate-info {
+    text-align: center;
+  }
+
+  .donate-qr-box {
+    width: 100%;
+    max-width: 360px;
+    margin: auto;
+  }
+}
+
