@@ -138,3 +138,182 @@ if (detailClose) {
     document.querySelectorAll('.project-card').forEach(card => card.classList.remove('active-project'));
   });
 }
+// ===== Voice Demo Player =====
+
+const voiceDemoPlayer = document.getElementById("voiceDemoPlayer");
+const voiceButtons = document.querySelectorAll(".voice-play-btn");
+
+let activeVoiceButton = null;
+
+function formatVoiceTime(seconds) {
+  if (!Number.isFinite(seconds)) {
+    return "00:00";
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+
+  return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function resetVoiceButton(button) {
+  if (!button) return;
+
+  button.classList.remove("is-playing");
+
+  const icon = button.querySelector(".voice-play-icon");
+  const text = button.querySelector(".voice-play-text");
+  const card = button.closest(".voice-demo-card");
+  const progressBar = card?.querySelector(".voice-progress-bar");
+  const time = card?.querySelector(".voice-time");
+
+  if (icon) {
+    icon.textContent = "▶";
+  }
+
+  if (text) {
+    text.textContent = "ฟังตัวอย่างเสียง";
+  }
+
+  if (progressBar) {
+    progressBar.style.width = "0%";
+  }
+
+  if (time) {
+    time.textContent = "00:00 / 00:00";
+  }
+}
+
+voiceButtons.forEach((button) => {
+  button.addEventListener("click", async () => {
+    if (!voiceDemoPlayer) return;
+
+    const audioSrc = button.dataset.audio;
+
+    if (!audioSrc) return;
+
+    // กดปุ่มเดิมระหว่างที่เสียงกำลังเล่น = หยุดชั่วคราว
+    if (
+      activeVoiceButton === button &&
+      !voiceDemoPlayer.paused
+    ) {
+      voiceDemoPlayer.pause();
+
+      button.classList.remove("is-playing");
+
+      const icon = button.querySelector(".voice-play-icon");
+      const text = button.querySelector(".voice-play-text");
+
+      if (icon) {
+        icon.textContent = "▶";
+      }
+
+      if (text) {
+        text.textContent = "เล่นต่อ";
+      }
+
+      return;
+    }
+
+    // ถ้ากดตัวละครใหม่ ให้รีเซ็ตปุ่มตัวเก่า
+    if (
+      activeVoiceButton &&
+      activeVoiceButton !== button
+    ) {
+      resetVoiceButton(activeVoiceButton);
+    }
+
+    const fullAudioUrl = new URL(
+      audioSrc,
+      window.location.href
+    ).href;
+
+    // เปลี่ยนไฟล์เฉพาะตอนกดคนละเสียง
+    if (voiceDemoPlayer.src !== fullAudioUrl) {
+      voiceDemoPlayer.src = audioSrc;
+      voiceDemoPlayer.currentTime = 0;
+    }
+
+    activeVoiceButton = button;
+
+    button.classList.add("is-playing");
+
+    const icon = button.querySelector(".voice-play-icon");
+    const text = button.querySelector(".voice-play-text");
+
+    if (icon) {
+      icon.textContent = "❚❚";
+    }
+
+    if (text) {
+      text.textContent = "หยุดชั่วคราว";
+    }
+
+    try {
+      await voiceDemoPlayer.play();
+    } catch (error) {
+      resetVoiceButton(button);
+      activeVoiceButton = null;
+
+      alert(`ไม่พบไฟล์เสียง: ${audioSrc}`);
+    }
+  });
+});
+
+if (voiceDemoPlayer) {
+  // อัปเดตแถบเวลาและเวลาเล่น
+  voiceDemoPlayer.addEventListener("timeupdate", () => {
+    if (!activeVoiceButton) return;
+
+    const card = activeVoiceButton.closest(
+      ".voice-demo-card"
+    );
+
+    const progressBar = card?.querySelector(
+      ".voice-progress-bar"
+    );
+
+    const time = card?.querySelector(
+      ".voice-time"
+    );
+
+    const duration = voiceDemoPlayer.duration;
+    const currentTime = voiceDemoPlayer.currentTime;
+
+    if (
+      progressBar &&
+      Number.isFinite(duration) &&
+      duration > 0
+    ) {
+      const percent =
+        (currentTime / duration) * 100;
+
+      progressBar.style.width = `${percent}%`;
+    }
+
+    if (time) {
+      time.textContent =
+        `${formatVoiceTime(currentTime)} / ${formatVoiceTime(duration)}`;
+    }
+  });
+
+  // เล่นจบแล้วรีเซ็ตปุ่ม
+  voiceDemoPlayer.addEventListener("ended", () => {
+    resetVoiceButton(activeVoiceButton);
+    activeVoiceButton = null;
+  });
+
+  // โหลดไฟล์เสียงไม่ได้
+  voiceDemoPlayer.addEventListener("error", () => {
+    if (!activeVoiceButton) return;
+
+    const audioSrc =
+      activeVoiceButton.dataset.audio ||
+      "ไฟล์เสียง";
+
+    resetVoiceButton(activeVoiceButton);
+    activeVoiceButton = null;
+
+    alert(`โหลดไฟล์เสียงไม่ได้: ${audioSrc}`);
+  });
+}
