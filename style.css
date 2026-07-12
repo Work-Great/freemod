@@ -1130,4 +1130,75 @@ p { color: var(--muted); line-height: 1.75; }
 .progress-text{margin-top:8px;display:flex;justify-content:space-between;color:#666;font-weight:600}
 
 
-.voice-wave span{transition:height .045s linear,opacity .07s linear;will-change:height,opacity}
+.voice-wave span{transition:none;will-change:height,opacity;transform:translateZ(0)}
+
+
+
+
+/* แถบเวลาเสียงพร้อมปุ่มลากที่ปลายหลอด */
+.voice-progress {
+  position: relative;
+  overflow: visible;
+  touch-action: none;
+  user-select: none;
+}
+
+.voice-progress-bar {
+  position: relative;
+}
+
+.voice-progress-handle {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 50%;
+  border: 3px solid #ff69b4;
+  background: #ffffff;
+  box-shadow:
+    0 4px 12px rgba(123, 102, 190, .30),
+    0 0 0 4px rgba(255, 105, 180, .10);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  z-index: 3;
+  touch-action: none;
+  transition:
+    width .16s ease,
+    height .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease;
+}
+
+.voice-progress-handle:hover,
+.voice-progress-handle:focus-visible {
+  width: 23px;
+  height: 23px;
+  outline: none;
+  box-shadow:
+    0 6px 16px rgba(123, 102, 190, .34),
+    0 0 0 6px rgba(255, 105, 180, .14);
+}
+
+.voice-progress-handle.is-dragging {
+  width: 25px;
+  height: 25px;
+  cursor: grabbing;
+  border-color: #ff4fa2;
+  box-shadow:
+    0 8px 20px rgba(123, 102, 190, .38),
+    0 0 0 8px rgba(255, 105, 180, .16);
+}
+
+@media (max-width: 620px) {
+  .voice-progress-handle {
+    width: 24px;
+    height: 24px;
+  }
+
+  .voice-progress-handle.is-dragging {
+    width: 28px;
+    height: 28px;
+  }
+}
