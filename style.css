@@ -1128,3 +1128,6 @@ p { color: var(--muted); line-height: 1.75; }
     transition:width .6s ease;
 }
 .progress-text{margin-top:8px;display:flex;justify-content:space-between;color:#666;font-weight:600}
+
+
+.voice-wave span{transition:height .045s linear,opacity .07s linear;will-change:height,opacity}

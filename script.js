@@ -144,13 +144,18 @@ const voiceDemoPlayer = document.getElementById('voiceDemoPlayer');
 const voiceButtons = document.querySelectorAll('.voice-play-btn');
 let activeVoiceButton = null;
 
-// Web Audio API สำหรับให้คลื่นขยับตามเสียงจริง
+// วิเคราะห์เสียงแบบละเอียดด้วย Web Audio API
 let audioContext = null;
 let analyser = null;
 let mediaSource = null;
-let timeData = null;
 let frequencyData = null;
+let timeData = null;
 let animationFrameId = null;
+
+// ค่าปรับตัวอัตโนมัติสำหรับตรวจความเงียบ
+let noiseFloor = 0.012;
+let adaptivePeak = 0.08;
+let silenceHoldFrames = 0;
 
 function fmt(time) {
   if (!Number.isFinite(time)) return '00:00';
@@ -170,10 +175,11 @@ function getWaveBars(button) {
 
 function setWaveIdle(button) {
   const bars = getWaveBars(button);
+  const idle = [5, 7, 9, 6, 8, 5, 10, 7];
+
   bars.forEach((bar, index) => {
-    const idleHeights = [6, 9, 12, 8, 10, 7];
-    bar.style.height = `${idleHeights[index % idleHeights.length]}px`;
-    bar.style.opacity = '.38';
+    bar.style.height = `${idle[index % idle.length]}px`;
+    bar.style.opacity = '.28';
   });
 }
 
@@ -185,14 +191,15 @@ function ensureAudioAnalyser() {
     if (!AudioContextClass) return false;
 
     audioContext = new AudioContextClass();
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.72;
-    analyser.minDecibels = -90;
-    analyser.maxDecibels = -20;
 
-    timeData = new Uint8Array(analyser.fftSize);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 1024;
+    analyser.smoothingTimeConstant = 0.58;
+    analyser.minDecibels = -100;
+    analyser.maxDecibels = -18;
+
     frequencyData = new Uint8Array(analyser.frequencyBinCount);
+    timeData = new Uint8Array(analyser.fftSize);
 
     mediaSource = audioContext.createMediaElementSource(voiceDemoPlayer);
     mediaSource.connect(analyser);
@@ -206,57 +213,172 @@ function ensureAudioAnalyser() {
   return true;
 }
 
+function calculateRms() {
+  analyser.getByteTimeDomainData(timeData);
+
+  let sumSquares = 0;
+
+  for (let i = 0; i < timeData.length; i++) {
+    const sample = (timeData[i] - 128) / 128;
+    sumSquares += sample * sample;
+  }
+
+  return Math.sqrt(sumSquares / timeData.length);
+}
+
+function averageFrequencyRange(startHz, endHz) {
+  if (!audioContext || !frequencyData.length) return 0;
+
+  const nyquist = audioContext.sampleRate / 2;
+  const startIndex = Math.max(
+    0,
+    Math.floor((startHz / nyquist) * frequencyData.length)
+  );
+  const endIndex = Math.min(
+    frequencyData.length - 1,
+    Math.ceil((endHz / nyquist) * frequencyData.length)
+  );
+
+  let total = 0;
+  let count = 0;
+
+  for (let i = startIndex; i <= endIndex; i++) {
+    total += frequencyData[i];
+    count++;
+  }
+
+  return count ? total / count / 255 : 0;
+}
+
+function updateAdaptiveThreshold(rms) {
+  // เรียนรู้ noise floor เมื่อเสียงเบา
+  if (rms < noiseFloor * 2.2) {
+    noiseFloor = noiseFloor * 0.985 + rms * 0.015;
+  }
+
+  // เรียนรู้ระดับสูงสุดของไฟล์แบบค่อยเป็นค่อยไป
+  adaptivePeak = Math.max(rms, adaptivePeak * 0.992);
+
+  noiseFloor = Math.max(0.004, Math.min(noiseFloor, 0.045));
+  adaptivePeak = Math.max(noiseFloor + 0.025, adaptivePeak);
+}
+
 function updateWaveFromAudio() {
-  if (!activeVoiceButton || !analyser || voiceDemoPlayer.paused || voiceDemoPlayer.ended) {
+  if (
+    !activeVoiceButton ||
+    !analyser ||
+    voiceDemoPlayer.paused ||
+    voiceDemoPlayer.ended
+  ) {
     animationFrameId = null;
     return;
   }
 
   const bars = getWaveBars(activeVoiceButton);
+
   if (!bars.length) {
     animationFrameId = requestAnimationFrame(updateWaveFromAudio);
     return;
   }
 
-  analyser.getByteTimeDomainData(timeData);
   analyser.getByteFrequencyData(frequencyData);
 
-  // วัดระดับเสียงจริงด้วย RMS
-  let sumSquares = 0;
-  for (let i = 0; i < timeData.length; i++) {
-    const normalized = (timeData[i] - 128) / 128;
-    sumSquares += normalized * normalized;
+  const rms = calculateRms();
+  updateAdaptiveThreshold(rms);
+
+  // ย่านที่สำคัญต่อเสียงพูด
+  const subBass = averageFrequencyRange(60, 160);
+  const lowVoice = averageFrequencyRange(160, 350);
+  const bodyVoice = averageFrequencyRange(350, 900);
+  const clarityVoice = averageFrequencyRange(900, 2500);
+  const presenceVoice = averageFrequencyRange(2500, 5000);
+  const hissNoise = averageFrequencyRange(6500, 12000);
+
+  const speechEnergy =
+    lowVoice * 0.12 +
+    bodyVoice * 0.32 +
+    clarityVoice * 0.36 +
+    presenceVoice * 0.20;
+
+  const tonalNoisePenalty = Math.max(0, hissNoise - speechEnergy * 0.85);
+  const dynamicThreshold = Math.max(
+    noiseFloor * 1.75,
+    0.010 + tonalNoisePenalty * 0.025
+  );
+
+  const normalizedLoudness = Math.max(
+    0,
+    Math.min(1, (rms - dynamicThreshold) / (adaptivePeak - dynamicThreshold))
+  );
+
+  // ต้องมีทั้งระดับเสียงและพลังงานในย่านเสียงพูด
+  const speechConfidence = Math.max(
+    0,
+    Math.min(
+      1,
+      normalizedLoudness * 0.58 +
+      speechEnergy * 0.68 -
+      tonalNoisePenalty * 0.42
+    )
+  );
+
+  const speaking = rms > dynamicThreshold && speechConfidence > 0.10;
+
+  if (speaking) {
+    silenceHoldFrames = 4;
+  } else if (silenceHoldFrames > 0) {
+    silenceHoldFrames--;
   }
 
-  const rms = Math.sqrt(sumSquares / timeData.length);
-
-  // ถ้าเสียงเบามากหรือเงียบ ให้คลื่นหยุดเกือบนิ่ง
-  const silenceThreshold = 0.018;
-  const isSilent = rms < silenceThreshold;
+  const showMotion = speaking || silenceHoldFrames > 0;
 
   bars.forEach((bar, index) => {
-    if (isSilent) {
-      bar.style.height = `${5 + (index % 3)}px`;
-      bar.style.opacity = '.30';
+    if (!showMotion) {
+      const quietHeight = 4 + (index % 3);
+      bar.style.height = `${quietHeight}px`;
+      bar.style.opacity = '.24';
       return;
     }
 
-    // กระจายแต่ละแท่งไปยังย่านความถี่ต่างกัน
-    const binStart = 2;
-    const usableBins = Math.max(1, frequencyData.length - binStart);
-    const binIndex = binStart + Math.floor((index / bars.length) * usableBins);
-    const frequencyLevel = frequencyData[Math.min(binIndex, frequencyData.length - 1)] / 255;
+    const position = index / Math.max(1, bars.length - 1);
 
-    // ผสมระดับความดังรวมกับข้อมูลความถี่
-    const loudness = Math.min(1, rms * 7.5);
-    const mixedLevel = Math.min(1, (frequencyLevel * 0.68) + (loudness * 0.72));
+    // ให้แต่ละแท่งตอบสนองกับย่านเสียงต่างกัน
+    let bandLevel;
 
-    const minHeight = 6;
-    const maxHeight = 39;
-    const height = minHeight + mixedLevel * (maxHeight - minHeight);
+    if (position < 0.18) {
+      bandLevel = lowVoice * 0.75 + bodyVoice * 0.25;
+    } else if (position < 0.42) {
+      bandLevel = bodyVoice * 0.62 + clarityVoice * 0.38;
+    } else if (position < 0.70) {
+      bandLevel = clarityVoice * 0.72 + presenceVoice * 0.28;
+    } else {
+      bandLevel = presenceVoice * 0.70 + clarityVoice * 0.30;
+    }
+
+    // เพิ่มรูปทรงแบบสมมาตรตรงกลางเพื่อให้ดูเป็น waveform
+    const centerBoost = 1 - Math.abs(position - 0.5) * 0.75;
+
+    const microVariation =
+      0.88 +
+      Math.sin(performance.now() * 0.012 + index * 1.17) * 0.08 +
+      Math.sin(performance.now() * 0.021 + index * 0.63) * 0.04;
+
+    const finalLevel = Math.max(
+      0,
+      Math.min(
+        1,
+        (bandLevel * 0.72 + speechConfidence * 0.56) *
+        centerBoost *
+        microVariation
+      )
+    );
+
+    const minHeight = 5;
+    const maxHeight = 40;
+    const height = minHeight + Math.pow(finalLevel, 0.72) * (maxHeight - minHeight);
 
     bar.style.height = `${height.toFixed(1)}px`;
-    bar.style.opacity = `${Math.min(1, 0.48 + mixedLevel * 0.62)}`;
+    bar.style.opacity = `${Math.min(1, 0.42 + finalLevel * 0.70)}`;
   });
 
   animationFrameId = requestAnimationFrame(updateWaveFromAudio);
@@ -344,11 +466,15 @@ voiceButtons.forEach(button => {
     if (voiceDemoPlayer.src !== fullSource) {
       voiceDemoPlayer.src = source;
       voiceDemoPlayer.currentTime = 0;
+
+      // รีเซ็ตค่าการปรับตัวเมื่อเปลี่ยนไฟล์
+      noiseFloor = 0.012;
+      adaptivePeak = 0.08;
+      silenceHoldFrames = 0;
     }
 
     activeVoiceButton = button;
 
-    // ต้องสร้าง/ปลุก AudioContext หลังผู้ใช้กดปุ่ม
     ensureAudioAnalyser();
     setButtonState(button, 'playing');
 
@@ -365,6 +491,7 @@ voiceButtons.forEach(button => {
 if (voiceDemoPlayer) {
   voiceDemoPlayer.addEventListener('loadedmetadata', () => {
     if (!activeVoiceButton) return;
+
     const card = getVoiceCard(activeVoiceButton);
     const timeLabel = card?.querySelector('.voice-time');
 
