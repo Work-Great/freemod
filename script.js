@@ -144,6 +144,14 @@ const voiceDemoPlayer = document.getElementById('voiceDemoPlayer');
 const voiceButtons = document.querySelectorAll('.voice-play-btn');
 let activeVoiceButton = null;
 
+// Web Audio API สำหรับให้คลื่นขยับตามเสียงจริง
+let audioContext = null;
+let analyser = null;
+let mediaSource = null;
+let timeData = null;
+let frequencyData = null;
+let animationFrameId = null;
+
 function fmt(time) {
   if (!Number.isFinite(time)) return '00:00';
   const minutes = Math.floor(time / 60);
@@ -155,10 +163,126 @@ function getVoiceCard(button) {
   return button ? button.closest('.voice-demo-card') : null;
 }
 
-function setWavePlaying(button, playing) {
+function getWaveBars(button) {
   const card = getVoiceCard(button);
-  const wave = card?.querySelector('.voice-wave');
-  if (wave) wave.classList.toggle('is-playing', playing);
+  return card ? [...card.querySelectorAll('.voice-wave span')] : [];
+}
+
+function setWaveIdle(button) {
+  const bars = getWaveBars(button);
+  bars.forEach((bar, index) => {
+    const idleHeights = [6, 9, 12, 8, 10, 7];
+    bar.style.height = `${idleHeights[index % idleHeights.length]}px`;
+    bar.style.opacity = '.38';
+  });
+}
+
+function ensureAudioAnalyser() {
+  if (!voiceDemoPlayer) return false;
+
+  if (!audioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return false;
+
+    audioContext = new AudioContextClass();
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.72;
+    analyser.minDecibels = -90;
+    analyser.maxDecibels = -20;
+
+    timeData = new Uint8Array(analyser.fftSize);
+    frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+    mediaSource = audioContext.createMediaElementSource(voiceDemoPlayer);
+    mediaSource.connect(analyser);
+    analyser.connect(audioContext.destination);
+  }
+
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+
+  return true;
+}
+
+function updateWaveFromAudio() {
+  if (!activeVoiceButton || !analyser || voiceDemoPlayer.paused || voiceDemoPlayer.ended) {
+    animationFrameId = null;
+    return;
+  }
+
+  const bars = getWaveBars(activeVoiceButton);
+  if (!bars.length) {
+    animationFrameId = requestAnimationFrame(updateWaveFromAudio);
+    return;
+  }
+
+  analyser.getByteTimeDomainData(timeData);
+  analyser.getByteFrequencyData(frequencyData);
+
+  // วัดระดับเสียงจริงด้วย RMS
+  let sumSquares = 0;
+  for (let i = 0; i < timeData.length; i++) {
+    const normalized = (timeData[i] - 128) / 128;
+    sumSquares += normalized * normalized;
+  }
+
+  const rms = Math.sqrt(sumSquares / timeData.length);
+
+  // ถ้าเสียงเบามากหรือเงียบ ให้คลื่นหยุดเกือบนิ่ง
+  const silenceThreshold = 0.018;
+  const isSilent = rms < silenceThreshold;
+
+  bars.forEach((bar, index) => {
+    if (isSilent) {
+      bar.style.height = `${5 + (index % 3)}px`;
+      bar.style.opacity = '.30';
+      return;
+    }
+
+    // กระจายแต่ละแท่งไปยังย่านความถี่ต่างกัน
+    const binStart = 2;
+    const usableBins = Math.max(1, frequencyData.length - binStart);
+    const binIndex = binStart + Math.floor((index / bars.length) * usableBins);
+    const frequencyLevel = frequencyData[Math.min(binIndex, frequencyData.length - 1)] / 255;
+
+    // ผสมระดับความดังรวมกับข้อมูลความถี่
+    const loudness = Math.min(1, rms * 7.5);
+    const mixedLevel = Math.min(1, (frequencyLevel * 0.68) + (loudness * 0.72));
+
+    const minHeight = 6;
+    const maxHeight = 39;
+    const height = minHeight + mixedLevel * (maxHeight - minHeight);
+
+    bar.style.height = `${height.toFixed(1)}px`;
+    bar.style.opacity = `${Math.min(1, 0.48 + mixedLevel * 0.62)}`;
+  });
+
+  animationFrameId = requestAnimationFrame(updateWaveFromAudio);
+}
+
+function startWave(button) {
+  if (!button) return;
+
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+
+  setWaveIdle(button);
+
+  if (ensureAudioAnalyser()) {
+    animationFrameId = requestAnimationFrame(updateWaveFromAudio);
+  }
+}
+
+function stopWave(button) {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  setWaveIdle(button);
 }
 
 function setButtonState(button, state) {
@@ -173,7 +297,7 @@ function setButtonState(button, state) {
     icon.textContent = '❚❚';
     text.textContent = 'หยุดชั่วคราว';
     button.setAttribute('aria-label', 'หยุดตัวอย่างเสียงชั่วคราว');
-    setWavePlaying(button, true);
+    startWave(button);
   } else {
     icon.textContent = '▶';
     text.textContent = state === 'paused' ? 'เล่นต่อ' : 'ฟังตัวอย่างเสียง';
@@ -181,7 +305,7 @@ function setButtonState(button, state) {
       'aria-label',
       state === 'paused' ? 'เล่นตัวอย่างเสียงต่อ' : 'ฟังตัวอย่างเสียง'
     );
-    setWavePlaying(button, false);
+    stopWave(button);
   }
 }
 
@@ -199,17 +323,17 @@ function resetVoice(button) {
 }
 
 voiceButtons.forEach(button => {
+  setWaveIdle(button);
+
   button.addEventListener('click', async () => {
     const source = button.dataset.audio;
     if (!source || !voiceDemoPlayer) return;
 
-    // กดปุ่มเดิมขณะกำลังเล่น = หยุดชั่วคราว
     if (activeVoiceButton === button && !voiceDemoPlayer.paused) {
       voiceDemoPlayer.pause();
       return;
     }
 
-    // หยุดเสียงปุ่มก่อนหน้าเมื่อเลือกตัวละครใหม่
     if (activeVoiceButton && activeVoiceButton !== button) {
       voiceDemoPlayer.pause();
       resetVoice(activeVoiceButton);
@@ -223,6 +347,9 @@ voiceButtons.forEach(button => {
     }
 
     activeVoiceButton = button;
+
+    // ต้องสร้าง/ปลุก AudioContext หลังผู้ใช้กดปุ่ม
+    ensureAudioAnalyser();
     setButtonState(button, 'playing');
 
     try {
@@ -240,8 +367,10 @@ if (voiceDemoPlayer) {
     if (!activeVoiceButton) return;
     const card = getVoiceCard(activeVoiceButton);
     const timeLabel = card?.querySelector('.voice-time');
+
     if (timeLabel) {
-      timeLabel.textContent = `${fmt(voiceDemoPlayer.currentTime)} / ${fmt(voiceDemoPlayer.duration)}`;
+      timeLabel.textContent =
+        `${fmt(voiceDemoPlayer.currentTime)} / ${fmt(voiceDemoPlayer.duration)}`;
     }
   });
 

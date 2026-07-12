@@ -1038,36 +1038,9 @@ p { color: var(--muted); line-height: 1.75; }
 .voice-wave span:nth-child(6n + 5) { --wave-height: 12px; }
 .voice-wave span:nth-child(6n + 6) { --wave-height: 24px; }
 
-/* คลื่นขยับเฉพาะตอนเสียงกำลังเล่น */
-.voice-wave.is-playing span {
-  opacity: 1;
-  animation: voice-wave-move .72s ease-in-out infinite alternate;
-}
-
-.voice-wave.is-playing span:nth-child(4n + 1) { animation-duration: .52s; }
-.voice-wave.is-playing span:nth-child(4n + 2) { animation-duration: .68s; }
-.voice-wave.is-playing span:nth-child(4n + 3) { animation-duration: .84s; }
-.voice-wave.is-playing span:nth-child(4n + 4) { animation-duration: .61s; }
-
-.voice-wave.is-playing span:nth-child(5n + 1) { animation-delay: -.12s; }
-.voice-wave.is-playing span:nth-child(5n + 2) { animation-delay: -.28s; }
-.voice-wave.is-playing span:nth-child(5n + 3) { animation-delay: -.44s; }
-.voice-wave.is-playing span:nth-child(5n + 4) { animation-delay: -.20s; }
-.voice-wave.is-playing span:nth-child(5n + 5) { animation-delay: -.36s; }
-
-@keyframes voice-wave-move {
-  0% {
-    height: 7px;
-    transform: scaleY(.72);
-  }
-  50% {
-    height: 23px;
-    transform: scaleY(1);
-  }
-  100% {
-    height: 39px;
-    transform: scaleY(.9);
-  }
+/* ความสูงของคลื่นถูกควบคุมด้วย JavaScript ตามระดับเสียงจริง */
+.voice-wave span {
+  transition: height .055s linear, opacity .08s linear;
 }
 
 .voice-progress {
@@ -1106,12 +1079,6 @@ p { color: var(--muted); line-height: 1.75; }
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .voice-wave.is-playing span {
-    animation: none;
-  }
 }
 
 @media (max-width: 980px) {
