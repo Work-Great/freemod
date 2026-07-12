@@ -382,7 +382,7 @@ p { color: var(--muted); line-height: 1.75; }
   text-align: center;
   padding: 24px;
   color: white;
-  background: linear-gradient(135deg, rgba(255,115,181,.38), rgba(121,201,255,.44)), url('assets/five-hearts-bg.png') center/cover;
+  background: linear-gradient(135deg, rgba(255,115,181,.38), rgba(121,201,255,.44)), url('five-hearts-bg.png') center/cover;
   text-shadow: 0 4px 18px rgba(54, 58, 120, .38);
 }
 .play-icon {
