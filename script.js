@@ -138,182 +138,94 @@ if (detailClose) {
     document.querySelectorAll('.project-card').forEach(card => card.classList.remove('active-project'));
   });
 }
-// ===== Voice Demo Player =====
 
-const voiceDemoPlayer = document.getElementById("voiceDemoPlayer");
-const voiceButtons = document.querySelectorAll(".voice-play-btn");
 
-let activeVoiceButton = null;
+// ===== Premium voice cast player =====
+const voiceProPlayer = document.getElementById('voiceProPlayer');
+const voiceProButtons = document.querySelectorAll('.voice-pro-play');
+let activeVoiceProButton = null;
 
-function formatVoiceTime(seconds) {
-  if (!Number.isFinite(seconds)) {
-    return "00:00";
-  }
-
+function formatVoiceProTime(seconds) {
+  if (!Number.isFinite(seconds)) return '00:00';
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-
-  return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  return `${String(minutes).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 }
 
-function resetVoiceButton(button) {
+function resetVoicePro(button) {
   if (!button) return;
-
-  button.classList.remove("is-playing");
-
-  const icon = button.querySelector(".voice-play-icon");
-  const text = button.querySelector(".voice-play-text");
-  const card = button.closest(".voice-demo-card");
-  const progressBar = card?.querySelector(".voice-progress-bar");
-  const time = card?.querySelector(".voice-time");
-
-  if (icon) {
-    icon.textContent = "▶";
-  }
-
-  if (text) {
-    text.textContent = "ฟังตัวอย่างเสียง";
-  }
-
-  if (progressBar) {
-    progressBar.style.width = "0%";
-  }
-
-  if (time) {
-    time.textContent = "00:00 / 00:00";
-  }
+  const card = button.closest('.voice-pro-card');
+  button.classList.remove('is-playing');
+  card?.classList.remove('is-playing');
+  button.querySelector('.voice-pro-icon').textContent = '▶';
+  button.querySelector('.voice-pro-text').textContent = 'ฟังตัวอย่างเสียง';
+  const bar = card?.querySelector('.voice-pro-progress-bar');
+  const time = card?.querySelector('.voice-pro-time');
+  if (bar) bar.style.width = '0%';
+  if (time) time.textContent = '00:00 / 00:00';
 }
 
-voiceButtons.forEach((button) => {
-  button.addEventListener("click", async () => {
-    if (!voiceDemoPlayer) return;
+voiceProButtons.forEach(button => {
+  button.addEventListener('click', async () => {
+    if (!voiceProPlayer) return;
+    const src = button.dataset.audio;
+    const card = button.closest('.voice-pro-card');
 
-    const audioSrc = button.dataset.audio;
-
-    if (!audioSrc) return;
-
-    // กดปุ่มเดิมระหว่างที่เสียงกำลังเล่น = หยุดชั่วคราว
-    if (
-      activeVoiceButton === button &&
-      !voiceDemoPlayer.paused
-    ) {
-      voiceDemoPlayer.pause();
-
-      button.classList.remove("is-playing");
-
-      const icon = button.querySelector(".voice-play-icon");
-      const text = button.querySelector(".voice-play-text");
-
-      if (icon) {
-        icon.textContent = "▶";
-      }
-
-      if (text) {
-        text.textContent = "เล่นต่อ";
-      }
-
+    if (activeVoiceProButton === button && !voiceProPlayer.paused) {
+      voiceProPlayer.pause();
+      button.classList.remove('is-playing');
+      card?.classList.remove('is-playing');
+      button.querySelector('.voice-pro-icon').textContent = '▶';
+      button.querySelector('.voice-pro-text').textContent = 'เล่นต่อ';
       return;
     }
 
-    // ถ้ากดตัวละครใหม่ ให้รีเซ็ตปุ่มตัวเก่า
-    if (
-      activeVoiceButton &&
-      activeVoiceButton !== button
-    ) {
-      resetVoiceButton(activeVoiceButton);
+    if (activeVoiceProButton && activeVoiceProButton !== button) {
+      resetVoicePro(activeVoiceProButton);
     }
 
-    const fullAudioUrl = new URL(
-      audioSrc,
-      window.location.href
-    ).href;
-
-    // เปลี่ยนไฟล์เฉพาะตอนกดคนละเสียง
-    if (voiceDemoPlayer.src !== fullAudioUrl) {
-      voiceDemoPlayer.src = audioSrc;
-      voiceDemoPlayer.currentTime = 0;
+    const fullUrl = new URL(src, window.location.href).href;
+    if (voiceProPlayer.src !== fullUrl) {
+      voiceProPlayer.src = src;
+      voiceProPlayer.currentTime = 0;
     }
 
-    activeVoiceButton = button;
-
-    button.classList.add("is-playing");
-
-    const icon = button.querySelector(".voice-play-icon");
-    const text = button.querySelector(".voice-play-text");
-
-    if (icon) {
-      icon.textContent = "❚❚";
-    }
-
-    if (text) {
-      text.textContent = "หยุดชั่วคราว";
-    }
+    activeVoiceProButton = button;
+    button.classList.add('is-playing');
+    card?.classList.add('is-playing');
+    button.querySelector('.voice-pro-icon').textContent = '❚❚';
+    button.querySelector('.voice-pro-text').textContent = 'หยุดชั่วคราว';
 
     try {
-      await voiceDemoPlayer.play();
+      await voiceProPlayer.play();
     } catch (error) {
-      resetVoiceButton(button);
-      activeVoiceButton = null;
-
-      alert(`ไม่พบไฟล์เสียง: ${audioSrc}`);
+      resetVoicePro(button);
+      activeVoiceProButton = null;
+      alert(`ยังไม่พบไฟล์เสียง: ${src}`);
     }
   });
 });
 
-if (voiceDemoPlayer) {
-  // อัปเดตแถบเวลาและเวลาเล่น
-  voiceDemoPlayer.addEventListener("timeupdate", () => {
-    if (!activeVoiceButton) return;
+if (voiceProPlayer) {
+  voiceProPlayer.addEventListener('timeupdate', () => {
+    if (!activeVoiceProButton) return;
+    const card = activeVoiceProButton.closest('.voice-pro-card');
+    const duration = voiceProPlayer.duration;
+    const current = voiceProPlayer.currentTime;
+    const bar = card?.querySelector('.voice-pro-progress-bar');
+    const time = card?.querySelector('.voice-pro-time');
 
-    const card = activeVoiceButton.closest(
-      ".voice-demo-card"
-    );
-
-    const progressBar = card?.querySelector(
-      ".voice-progress-bar"
-    );
-
-    const time = card?.querySelector(
-      ".voice-time"
-    );
-
-    const duration = voiceDemoPlayer.duration;
-    const currentTime = voiceDemoPlayer.currentTime;
-
-    if (
-      progressBar &&
-      Number.isFinite(duration) &&
-      duration > 0
-    ) {
-      const percent =
-        (currentTime / duration) * 100;
-
-      progressBar.style.width = `${percent}%`;
+    if (bar && Number.isFinite(duration) && duration > 0) {
+      bar.style.width = `${(current / duration) * 100}%`;
     }
-
     if (time) {
-      time.textContent =
-        `${formatVoiceTime(currentTime)} / ${formatVoiceTime(duration)}`;
+      time.textContent = `${formatVoiceProTime(current)} / ${formatVoiceProTime(duration)}`;
     }
   });
 
-  // เล่นจบแล้วรีเซ็ตปุ่ม
-  voiceDemoPlayer.addEventListener("ended", () => {
-    resetVoiceButton(activeVoiceButton);
-    activeVoiceButton = null;
-  });
-
-  // โหลดไฟล์เสียงไม่ได้
-  voiceDemoPlayer.addEventListener("error", () => {
-    if (!activeVoiceButton) return;
-
-    const audioSrc =
-      activeVoiceButton.dataset.audio ||
-      "ไฟล์เสียง";
-
-    resetVoiceButton(activeVoiceButton);
-    activeVoiceButton = null;
-
-    alert(`โหลดไฟล์เสียงไม่ได้: ${audioSrc}`);
+  voiceProPlayer.addEventListener('ended', () => {
+    resetVoicePro(activeVoiceProButton);
+    activeVoiceProButton = null;
   });
 }
+
