@@ -868,3 +868,10 @@ p { color: var(--muted); line-height: 1.75; }
 .voice-time{margin-top:7px;text-align:right;font-size:12px;font-weight:800;color:var(--muted)}
 @media(max-width:980px){.voice-demo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.voice-demo-grid{grid-template-columns:1fr}.voice-demo-card img{height:300px}}
+
+
+.donation-progress{margin:30px 0 25px}
+.progress-header{display:flex;justify-content:space-between;font-weight:700;font-size:18px;color:#5d3d82;margin-bottom:10px}
+.progress-bar{width:100%;height:18px;background:#ececec;border-radius:999px;overflow:hidden;box-shadow:inset 0 2px 8px rgba(0,0,0,.08)}
+.progress-fill{width:0%;height:100%;background:linear-gradient(90deg,#ff77b5,#8cbcff)}
+.progress-text{margin-top:8px;display:flex;justify-content:space-between;color:#666;font-weight:600}
