@@ -23,7 +23,6 @@
         <a href="#download">ดาวน์โหลด</a>
         <a href="#install">วิธีติดตั้ง</a>
         <a href="#cast">นักพากย์</a>
-        <a href="#gallery">แกลเลอรี</a>
         <a href="#support">สนับสนุน</a>
         <a href="#contact">ติดต่อ</a>
       </div>
@@ -90,121 +89,76 @@
       </section>
     </section>
 
-    
     <section id="projects" class="page section">
       <div class="section-head">
         <p class="eyebrow">Projects</p>
-        <h2>ความคืบหน้าโปรเจกต์</h2>
-        <p>ติดตามสถานะงานแต่ละส่วนแบบละเอียด ตั้งแต่แปลบท อัดเสียง ตัดต่อ ไปจนถึงทดสอบในเกม</p>
+        <h2>โปรเจกต์ปัจจุบัน</h2>
       </div>
-
-      <div class="project-v2-grid">
-        <article class="project-v2-card">
-          <div class="project-v2-head">
-            <div>
-              <span class="tag">Demo</span>
-              <h3>Five Hearts Under One Roof 2 Demo</h3>
-            </div>
-            <strong>10%</strong>
-          </div>
-          <div class="progress big"><div class="progress-bar" style="width:10%"></div></div>
-          <div class="project-checklist">
-            <div class="done">✔ รวบรวมไฟล์วิดีโอ/เสียง</div>
-            <div class="done">✔ แปลบทเดโม</div>
-            <div>○ อัดเสียงพากย์</div>
-            <div>○ ตัดต่อเสียงลงคลิป</div>
-            <div class="doing">⏳ ทดสอบระบบในเกม</div>
-            <div>○ ปล่อยดาวน์โหลด</div>
-          </div>
+      <div class="grid cards-3">
+        <article class="card project-card" data-project="demo" tabindex="0" role="button" aria-label="ดูรายละเอียดความคืบหน้า Five Hearts Under One Roof 2 Demo">
+          <div class="card-icon">💖</div>
+          <h3>Five Hearts Under One Roof 2 Demo</h3>
+          <p>ม็อดพากย์ไทยสำหรับเวอร์ชันเดโม ใช้ทดสอบระบบเสียงและวิดีโอแทนของเดิม</p>
+          
+<div class="progress-wrap">
+<div class="progress-label"><span>ความคืบหน้า</span><span>10%</span></div>
+<div class="progress"><div class="progress-bar" style="width:10%"></div></div>
+</div><span class="tag">Demo</span>
         </article>
-
-        <article class="project-v2-card">
-          <div class="project-v2-head">
-            <div>
-              <span class="tag">Full Game</span>
-              <h3>Five Hearts Under One Roof 2</h3>
-            </div>
-            <strong>3%</strong>
-          </div>
-          <div class="progress big"><div class="progress-bar" style="width:3%"></div></div>
-          <div class="project-checklist">
-            <div class="doing">⏳ รวบรวมไฟล์วิดีโอ/เสียง</div>
-            <div>○ แปลบททั้งหมด</div>
-            <div>○ อัดเสียงพากย์</div>
-            <div>○ ตัดต่อและมิกซ์เสียง</div>
-            <div>○ ตรวจคุณภาพ</div>
-            <div>○ ปล่อยดาวน์โหลด</div>
-          </div>
+        <article class="card project-card" data-project="full" tabindex="0" role="button" aria-label="ดูรายละเอียดความคืบหน้า Five Hearts Under One Roof 2">
+          <div class="card-icon">🎮</div>
+          <h3>Five Hearts Under One Roof 2</h3>
+          <p>เวอร์ชันติดตั้งผ่านไฟล์ Mod ที่ผู้เล่นนำไปวางในโฟลเดอร์เกมได้</p>
+          
+<div class="progress-wrap">
+<div class="progress-label"><span>ความคืบหน้า</span><span>3%</span></div>
+<div class="progress"><div class="progress-bar" style="width:3%"></div></div>
+</div><span class="tag">Full Game</span>
         </article>
-
-        <article class="project-v2-card">
-          <div class="project-v2-head">
-            <div>
-              <span class="tag">Season 1</span>
-              <h3>Five Hearts Under One Roof 1</h3>
-            </div>
-            <strong>0%</strong>
-          </div>
-          <div class="progress big"><div class="progress-bar" style="width:0%"></div></div>
-          <div class="project-checklist">
-            <div>○ วางแผนโปรเจกต์</div>
-            <div>○ รวบรวมไฟล์เกม</div>
-            <div>○ แปลบท</div>
-            <div>○ อัดเสียงพากย์</div>
-            <div>○ ทดสอบในเกม</div>
-            <div>○ ปล่อยดาวน์โหลด</div>
-          </div>
+        <article class="card project-card" data-project="season1" tabindex="0" role="button" aria-label="ดูรายละเอียดความคืบหน้า Five Hearts Under One Roof 1">
+          <div class="card-icon">🧪</div>
+          <h3>Five Hearts Under One Roof 1</h3>
+          <p>ม็อดพากย์ไทยสำหรับ Five Hearts Under One Roof ภาคแรก</p>
+          
+<div class="progress-wrap">
+<div class="progress-label"><span>ความคืบหน้า</span><span>0%</span></div>
+<div class="progress"><div class="progress-bar" style="width:0%"></div></div>
+</div><span class="tag">Season 1</span>
         </article>
       </div>
+      <div class="project-detail" id="projectDetail" aria-live="polite">
+        <button class="detail-close" id="detailClose" type="button" aria-label="ปิดรายละเอียด">×</button>
+        <p class="eyebrow" id="detailType">Progress Detail</p>
+        <h3 id="detailTitle">เลือกโปรเจกต์เพื่อดูรายละเอียด</h3>
+        <p id="detailDesc">กดที่การ์ดโปรเจกต์ด้านบนเพื่อดูว่าตอนนี้คืบหน้าอะไรไปแล้วบ้าง</p>
+        <div class="detail-overall">
+          <span>ความคืบหน้ารวม</span>
+          <strong id="detailPercent">0%</strong>
+        </div>
+        <div class="progress big"><div class="progress-bar" id="detailBar" style="width:0%"></div></div>
+        <div class="task-list" id="detailTasks"></div>
+      </div>
+
     </section>
 
-    
     <section id="download" class="page section alt">
       <div class="section-head">
         <p class="eyebrow">Download</p>
         <h2>ดาวน์โหลด Mod</h2>
-        <p>ข้อมูลเวอร์ชัน ไฟล์ และรายละเอียดการอัปเดตล่าสุด</p>
       </div>
-
-      <div class="download-v2">
-        <div class="download-main">
-          <div class="download-title-row">
-            <div>
-              <span class="status-pill">เวอร์ชันทดลอง</span>
-              <h3>Five Hearts Under One Roof 2 Thai Voice Mod</h3>
-            </div>
-            <span class="download-version">v0.1.0</span>
+      <div class="download-box">
+        <div>
+          <h3>Five Hearts Under One Roof 2 Thai Voice Mod</h3>
+          <p>เวอร์ชันทดลอง สำหรับผู้เล่นที่ต้องการทดสอบเสียงพากย์ไทยเบื้องต้น</p>
+          <div class="meta">
+            <span>Version 0.1.0</span>
+            <span>Windows</span>
+            <span>อัปเดตล่าสุด: ใส่วันที่เอง</span>
           </div>
-
-          <div class="download-stats">
-            <div><small>ขนาดไฟล์</small><strong>ใส่ขนาดไฟล์</strong></div>
-            <div><small>ระบบ</small><strong>Windows</strong></div>
-            <div><small>อัปเดตล่าสุด</small><strong>ใส่วันที่</strong></div>
-          </div>
-
-          <div class="changelog">
-            <h4>Changelog</h4>
-            <ul>
-              <li>เพิ่มระบบเล่นเสียงพากย์ไทย</li>
-              <li>ปรับปรุงการซิงก์เสียงและวิดีโอ</li>
-              <li>แก้ปัญหาเสียงไม่เล่นเมื่อดูซ้ำ</li>
-            </ul>
-          </div>
-
-          <a class="btn primary download-large"
-             href="https://www.facebook.com/profile.php?id=61591515063438"
-             target="_blank"
-             rel="noopener noreferrer">
-             ดาวน์โหลด Mod
-          </a>
         </div>
-
-        <aside class="download-side">
-          <h4>ก่อนติดตั้ง</h4>
-          <p>กรุณาอ่านวิธีติดตั้งและสำรองไฟล์เกมเดิมก่อนใช้งานทุกครั้ง</p>
-          <a href="#install" class="btn secondary">ดูวิธีติดตั้ง</a>
-        </aside>
+        <a class="btn primary" href="https://www.facebook.com/profile.php?id=61591515063438" target="_blank" rel="noopener noreferrer" onclick="alert('ใส่ลิงก์ไฟล์ Mod ตรงนี้ได้เลย')">ดาวน์โหลด</a>
       </div>
+      <p class="note">* ปุ่มดาวน์โหลดตอนนี้เป็นตัวอย่าง สามารถเปลี่ยนเป็นลิงก์ Google Drive, MediaFire, GitHub Release หรือไฟล์บนเว็บได้</p>
     </section>
 
     <section id="install" class="page section">
@@ -220,193 +174,101 @@
       </div>
     </section>
 
-    
+
     <section id="cast" class="page section alt">
       <div class="section-head">
         <p class="eyebrow">Voice Cast</p>
         <h2>ทีมนักพากย์และตัวอย่างเสียง</h2>
-        <p>กดฟังตัวอย่างเสียงของแต่ละตัวละครได้ทันที ระบบจะหยุดเสียงก่อนหน้าให้อัตโนมัติ</p>
+        <p>ดูรายชื่อนักพากย์และกดฟังตัวอย่างเสียงของแต่ละตัวละครได้ในหน้าเดียวกัน</p>
       </div>
+      <div class="voice-demo-grid">
 
-      <div class="voice-pro-grid">
-        
-        <article class="voice-pro-card">
-          <div class="voice-pro-image">
-            <img src="cast-1.jpg" alt="โก มัลซุก">
-            <span class="voice-pro-badge">Voice Demo</span>
-          </div>
-          <div class="voice-pro-body">
-            <span class="voice-pro-label">ตัวละคร</span>
+        <article class="voice-demo-card">
+          <img src="cast-1.jpg" alt="โก มัลซุก">
+          <div class="voice-demo-body">
+            <span class="voice-role">ตัวละคร</span>
             <h3>โก มัลซุก</h3>
-            <p>พากย์โดย <strong>KuroNeko Dub</strong></p>
-
-            <button class="voice-pro-play" type="button" data-audio="audio/cast-1-demo.mp3">
-              <span class="voice-pro-icon">▶</span>
-              <span class="voice-pro-text">ฟังตัวอย่างเสียง</span>
+            <p>พากย์โดย KuroNeko Dub</p>
+            <button class="voice-play-btn" type="button" data-audio="audio/cast-1-demo.mp3">
+              <span class="voice-play-icon">▶</span>
+              <span class="voice-play-text">ฟังตัวอย่างเสียง</span>
             </button>
-
-            <div class="voice-pro-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="voice-pro-progress">
-              <div class="voice-pro-progress-bar"></div>
-            </div>
-            <div class="voice-pro-time">00:00 / 00:00</div>
+            <div class="voice-progress"><div class="voice-progress-bar"></div></div>
+            <div class="voice-time">00:00 / 00:00</div>
           </div>
         </article>
-        <article class="voice-pro-card">
-          <div class="voice-pro-image">
-            <img src="cast-2.jpg" alt="บัง กุลี">
-            <span class="voice-pro-badge">Voice Demo</span>
-          </div>
-          <div class="voice-pro-body">
-            <span class="voice-pro-label">ตัวละคร</span>
+        <article class="voice-demo-card">
+          <img src="cast-2.jpg" alt="บัง กุลี">
+          <div class="voice-demo-body">
+            <span class="voice-role">ตัวละคร</span>
             <h3>บัง กุลี</h3>
-            <p>พากย์โดย <strong>AJ Kaisei</strong></p>
-
-            <button class="voice-pro-play" type="button" data-audio="audio/cast-2-demo.mp3">
-              <span class="voice-pro-icon">▶</span>
-              <span class="voice-pro-text">ฟังตัวอย่างเสียง</span>
+            <p>พากย์โดย AJ Kaisei</p>
+            <button class="voice-play-btn" type="button" data-audio="audio/cast-2-demo.mp3">
+              <span class="voice-play-icon">▶</span>
+              <span class="voice-play-text">ฟังตัวอย่างเสียง</span>
             </button>
-
-            <div class="voice-pro-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="voice-pro-progress">
-              <div class="voice-pro-progress-bar"></div>
-            </div>
-            <div class="voice-pro-time">00:00 / 00:00</div>
+            <div class="voice-progress"><div class="voice-progress-bar"></div></div>
+            <div class="voice-time">00:00 / 00:00</div>
           </div>
         </article>
-        <article class="voice-pro-card">
-          <div class="voice-pro-image">
-            <img src="cast-3.jpg" alt="ตัวละครหลัก 3">
-            <span class="voice-pro-badge">Voice Demo</span>
-          </div>
-          <div class="voice-pro-body">
-            <span class="voice-pro-label">ตัวละคร</span>
+        <article class="voice-demo-card">
+          <img src="cast-3.jpg" alt="ตัวละครหลัก 3">
+          <div class="voice-demo-body">
+            <span class="voice-role">ตัวละคร</span>
             <h3>ตัวละครหลัก 3</h3>
-            <p>พากย์โดย <strong>นักพากย์ 3</strong></p>
-
-            <button class="voice-pro-play" type="button" data-audio="audio/cast-3-demo.mp3">
-              <span class="voice-pro-icon">▶</span>
-              <span class="voice-pro-text">ฟังตัวอย่างเสียง</span>
+            <p>พากย์โดย นักพากย์ 3</p>
+            <button class="voice-play-btn" type="button" data-audio="audio/cast-3-demo.mp3">
+              <span class="voice-play-icon">▶</span>
+              <span class="voice-play-text">ฟังตัวอย่างเสียง</span>
             </button>
-
-            <div class="voice-pro-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="voice-pro-progress">
-              <div class="voice-pro-progress-bar"></div>
-            </div>
-            <div class="voice-pro-time">00:00 / 00:00</div>
+            <div class="voice-progress"><div class="voice-progress-bar"></div></div>
+            <div class="voice-time">00:00 / 00:00</div>
           </div>
         </article>
-        <article class="voice-pro-card">
-          <div class="voice-pro-image">
-            <img src="cast-4.jpg" alt="ตัวละครหลัก 4">
-            <span class="voice-pro-badge">Voice Demo</span>
-          </div>
-          <div class="voice-pro-body">
-            <span class="voice-pro-label">ตัวละคร</span>
+        <article class="voice-demo-card">
+          <img src="cast-4.jpg" alt="ตัวละครหลัก 4">
+          <div class="voice-demo-body">
+            <span class="voice-role">ตัวละคร</span>
             <h3>ตัวละครหลัก 4</h3>
-            <p>พากย์โดย <strong>นักพากย์ 4</strong></p>
-
-            <button class="voice-pro-play" type="button" data-audio="audio/cast-4-demo.mp3">
-              <span class="voice-pro-icon">▶</span>
-              <span class="voice-pro-text">ฟังตัวอย่างเสียง</span>
+            <p>พากย์โดย นักพากย์ 4</p>
+            <button class="voice-play-btn" type="button" data-audio="audio/cast-4-demo.mp3">
+              <span class="voice-play-icon">▶</span>
+              <span class="voice-play-text">ฟังตัวอย่างเสียง</span>
             </button>
-
-            <div class="voice-pro-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="voice-pro-progress">
-              <div class="voice-pro-progress-bar"></div>
-            </div>
-            <div class="voice-pro-time">00:00 / 00:00</div>
+            <div class="voice-progress"><div class="voice-progress-bar"></div></div>
+            <div class="voice-time">00:00 / 00:00</div>
           </div>
         </article>
-        <article class="voice-pro-card">
-          <div class="voice-pro-image">
-            <img src="cast-5.jpg" alt="ตัวละครหลัก 5">
-            <span class="voice-pro-badge">Voice Demo</span>
-          </div>
-          <div class="voice-pro-body">
-            <span class="voice-pro-label">ตัวละคร</span>
+        <article class="voice-demo-card">
+          <img src="cast-5.jpg" alt="ตัวละครหลัก 5">
+          <div class="voice-demo-body">
+            <span class="voice-role">ตัวละคร</span>
             <h3>ตัวละครหลัก 5</h3>
-            <p>พากย์โดย <strong>นักพากย์ 5</strong></p>
-
-            <button class="voice-pro-play" type="button" data-audio="audio/cast-5-demo.mp3">
-              <span class="voice-pro-icon">▶</span>
-              <span class="voice-pro-text">ฟังตัวอย่างเสียง</span>
+            <p>พากย์โดย นักพากย์ 5</p>
+            <button class="voice-play-btn" type="button" data-audio="audio/cast-5-demo.mp3">
+              <span class="voice-play-icon">▶</span>
+              <span class="voice-play-text">ฟังตัวอย่างเสียง</span>
             </button>
-
-            <div class="voice-pro-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="voice-pro-progress">
-              <div class="voice-pro-progress-bar"></div>
-            </div>
-            <div class="voice-pro-time">00:00 / 00:00</div>
+            <div class="voice-progress"><div class="voice-progress-bar"></div></div>
+            <div class="voice-time">00:00 / 00:00</div>
           </div>
         </article>
-        <article class="voice-pro-card">
-          <div class="voice-pro-image">
-            <img src="cast-6.jpg" alt="ตัวละครหลัก 6">
-            <span class="voice-pro-badge">Voice Demo</span>
-          </div>
-          <div class="voice-pro-body">
-            <span class="voice-pro-label">ตัวละคร</span>
+        <article class="voice-demo-card">
+          <img src="cast-6.jpg" alt="ตัวละครหลัก 6">
+          <div class="voice-demo-body">
+            <span class="voice-role">ตัวละคร</span>
             <h3>ตัวละครหลัก 6</h3>
-            <p>พากย์โดย <strong>นักพากย์ 6</strong></p>
-
-            <button class="voice-pro-play" type="button" data-audio="audio/cast-6-demo.mp3">
-              <span class="voice-pro-icon">▶</span>
-              <span class="voice-pro-text">ฟังตัวอย่างเสียง</span>
+            <p>พากย์โดย นักพากย์ 6</p>
+            <button class="voice-play-btn" type="button" data-audio="audio/cast-6-demo.mp3">
+              <span class="voice-play-icon">▶</span>
+              <span class="voice-play-text">ฟังตัวอย่างเสียง</span>
             </button>
-
-            <div class="voice-pro-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-
-            <div class="voice-pro-progress">
-              <div class="voice-pro-progress-bar"></div>
-            </div>
-            <div class="voice-pro-time">00:00 / 00:00</div>
+            <div class="voice-progress"><div class="voice-progress-bar"></div></div>
+            <div class="voice-time">00:00 / 00:00</div>
           </div>
         </article>
       </div>
-
-      <audio id="voiceProPlayer" preload="metadata"></audio>
-    </section>
-
-
-    <section id="gallery" class="page section">
-      <div class="section-head">
-        <p class="eyebrow">Gallery</p>
-        <h2>แกลเลอรีโปรเจกต์</h2>
-        <p>รวมภาพโปรโมต ภาพตัวละคร และเบื้องหลังการทำม็อด</p>
-      </div>
-
-      <div class="gallery-grid">
-        <img src="five-hearts-bg.png" alt="ภาพโปรโมตโปรเจกต์">
-        <img src="cast-1.jpg" alt="ตัวละคร 1">
-        <img src="cast-2.jpg" alt="ตัวละคร 2">
-        <img src="cast-3.jpg" alt="ตัวละคร 3">
-        <img src="cast-4.jpg" alt="ตัวละคร 4">
-        <img src="cast-5.jpg" alt="ตัวละคร 5">
-      </div>
+      <audio id="voiceDemoPlayer" preload="metadata"></audio>
     </section>
 
     <section id="support" class="page section support">
@@ -414,15 +276,6 @@
         <p class="eyebrow">Support</p>
         <h2>สนับสนุนโปรเจกต์</h2>
         <p>เงินสนับสนุนจะใช้สำหรับค่าจ้างนักพากย์ ค่าอุปกรณ์ ค่าเซิร์ฟเวอร์ และการพัฒนา Mod เวอร์ชันต่อไป</p>
-      </div>
-
-      <div class="support-goal">
-        <div class="support-goal-head">
-          <span>🎯 เป้าหมายเดือนนี้</span>
-          <strong>4,500 / 10,000 บาท</strong>
-        </div>
-        <div class="progress big"><div class="progress-bar" style="width:45%"></div></div>
-        <p>ทุกการสนับสนุนช่วยให้ทีมสามารถพัฒนาและจ้างนักพากย์ต่อได้</p>
       </div>
 
       <div class="donate-card">

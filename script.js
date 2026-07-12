@@ -140,92 +140,32 @@ if (detailClose) {
 }
 
 
-// ===== Premium voice cast player =====
-const voiceProPlayer = document.getElementById('voiceProPlayer');
-const voiceProButtons = document.querySelectorAll('.voice-pro-play');
-let activeVoiceProButton = null;
-
-function formatVoiceProTime(seconds) {
-  if (!Number.isFinite(seconds)) return '00:00';
-  const minutes = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${String(minutes).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-}
-
-function resetVoicePro(button) {
-  if (!button) return;
-  const card = button.closest('.voice-pro-card');
-  button.classList.remove('is-playing');
-  card?.classList.remove('is-playing');
-  button.querySelector('.voice-pro-icon').textContent = '▶';
-  button.querySelector('.voice-pro-text').textContent = 'ฟังตัวอย่างเสียง';
-  const bar = card?.querySelector('.voice-pro-progress-bar');
-  const time = card?.querySelector('.voice-pro-time');
-  if (bar) bar.style.width = '0%';
-  if (time) time.textContent = '00:00 / 00:00';
-}
-
-voiceProButtons.forEach(button => {
-  button.addEventListener('click', async () => {
-    if (!voiceProPlayer) return;
-    const src = button.dataset.audio;
-    const card = button.closest('.voice-pro-card');
-
-    if (activeVoiceProButton === button && !voiceProPlayer.paused) {
-      voiceProPlayer.pause();
-      button.classList.remove('is-playing');
-      card?.classList.remove('is-playing');
-      button.querySelector('.voice-pro-icon').textContent = '▶';
-      button.querySelector('.voice-pro-text').textContent = 'เล่นต่อ';
-      return;
-    }
-
-    if (activeVoiceProButton && activeVoiceProButton !== button) {
-      resetVoicePro(activeVoiceProButton);
-    }
-
-    const fullUrl = new URL(src, window.location.href).href;
-    if (voiceProPlayer.src !== fullUrl) {
-      voiceProPlayer.src = src;
-      voiceProPlayer.currentTime = 0;
-    }
-
-    activeVoiceProButton = button;
-    button.classList.add('is-playing');
-    card?.classList.add('is-playing');
-    button.querySelector('.voice-pro-icon').textContent = '❚❚';
-    button.querySelector('.voice-pro-text').textContent = 'หยุดชั่วคราว';
-
-    try {
-      await voiceProPlayer.play();
-    } catch (error) {
-      resetVoicePro(button);
-      activeVoiceProButton = null;
-      alert(`ยังไม่พบไฟล์เสียง: ${src}`);
-    }
+// Voice demo player
+const voiceDemoPlayer=document.getElementById('voiceDemoPlayer');
+const voiceButtons=document.querySelectorAll('.voice-play-btn');
+let activeVoiceButton=null;
+function fmt(t){if(!Number.isFinite(t))return'00:00';const m=Math.floor(t/60),s=Math.floor(t%60);return`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function resetVoice(btn){if(!btn)return;btn.classList.remove('is-playing');btn.querySelector('.voice-play-icon').textContent='▶';btn.querySelector('.voice-play-text').textContent='ฟังตัวอย่างเสียง';const card=btn.closest('.voice-demo-card');card.querySelector('.voice-progress-bar').style.width='0%';card.querySelector('.voice-time').textContent='00:00 / 00:00'}
+voiceButtons.forEach(btn=>btn.addEventListener('click',async()=>{
+  const src=btn.dataset.audio;
+  if(activeVoiceButton===btn&&!voiceDemoPlayer.paused){voiceDemoPlayer.pause();return}
+  if(activeVoiceButton&&activeVoiceButton!==btn)resetVoice(activeVoiceButton);
+  const full=new URL(src,location.href).href;
+  if(voiceDemoPlayer.src!==full){voiceDemoPlayer.src=src;voiceDemoPlayer.currentTime=0}
+  activeVoiceButton=btn;
+  btn.classList.add('is-playing');
+  btn.querySelector('.voice-play-icon').textContent='❚❚';
+  btn.querySelector('.voice-play-text').textContent='หยุดชั่วคราว';
+  try{await voiceDemoPlayer.play()}catch(e){resetVoice(btn);activeVoiceButton=null;alert('ยังไม่พบไฟล์เสียง Demo กรุณาอัปโหลดไฟล์ MP3 ไปยังโฟลเดอร์ audio')}
+}));
+if(voiceDemoPlayer){
+  voiceDemoPlayer.addEventListener('timeupdate',()=>{
+    if(!activeVoiceButton)return;
+    const card=activeVoiceButton.closest('.voice-demo-card');
+    const d=voiceDemoPlayer.duration,c=voiceDemoPlayer.currentTime;
+    if(Number.isFinite(d)&&d>0)card.querySelector('.voice-progress-bar').style.width=`${c/d*100}%`;
+    card.querySelector('.voice-time').textContent=`${fmt(c)} / ${fmt(d)}`;
   });
-});
-
-if (voiceProPlayer) {
-  voiceProPlayer.addEventListener('timeupdate', () => {
-    if (!activeVoiceProButton) return;
-    const card = activeVoiceProButton.closest('.voice-pro-card');
-    const duration = voiceProPlayer.duration;
-    const current = voiceProPlayer.currentTime;
-    const bar = card?.querySelector('.voice-pro-progress-bar');
-    const time = card?.querySelector('.voice-pro-time');
-
-    if (bar && Number.isFinite(duration) && duration > 0) {
-      bar.style.width = `${(current / duration) * 100}%`;
-    }
-    if (time) {
-      time.textContent = `${formatVoiceProTime(current)} / ${formatVoiceProTime(duration)}`;
-    }
-  });
-
-  voiceProPlayer.addEventListener('ended', () => {
-    resetVoicePro(activeVoiceProButton);
-    activeVoiceProButton = null;
-  });
+  voiceDemoPlayer.addEventListener('pause',()=>{if(!activeVoiceButton||voiceDemoPlayer.ended)return;activeVoiceButton.classList.remove('is-playing');activeVoiceButton.querySelector('.voice-play-icon').textContent='▶';activeVoiceButton.querySelector('.voice-play-text').textContent='เล่นต่อ'});
+  voiceDemoPlayer.addEventListener('ended',()=>{resetVoice(activeVoiceButton);activeVoiceButton=null});
 }
-
