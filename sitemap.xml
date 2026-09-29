@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-<url>
-<loc>https://work-great.github.io/freemod/</loc>
-<lastmod>2026-07-13</lastmod>
-<changefreq>weekly</changefreq>
-<priority>1.0</priority>
-</url>
+  <url>
+    <loc>https://work-great.github.io/freemod/</loc>
+  </url>
+
+  <url>
+    <loc>https://work-great.github.io/freemod/games/five-hearts/</loc>
+  </url>
+
+  <url>
+    <loc>https://work-great.github.io/freemod/games/know-lady/</loc>
+  </url>
+
+  <url>
+    <loc>https://work-great.github.io/freemod/games/late-shift/</loc>
+  </url>
 
 </urlset>
